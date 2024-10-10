@@ -5,15 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Barcode Scanner</title>
     <style>
-        #video {
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        #video-container {
+            position: relative;
             width: 100%;
             max-width: 400px;
-            margin: 0 auto;
+            border: 5px solid #007bff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        #video {
+            width: 100%;
+            height: auto;
+            display: block;
         }
         #output {
             margin-top: 20px;
-            font-size: 20px;
+            font-size: 24px;
             text-align: center;
+        }
+        #scan-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #scan-button:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
@@ -22,25 +59,30 @@
     <div id="video-container">
         <video id="video" autoplay></video>
     </div>
-    <div id="output">Barcode: <span id="barcode"></span></div>
+    <div id="output">Barcode: <span id="barcode">Not scanned</span></div>
+    <button id="scan-button">Scan</button>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
     <script>
-        Quagga.init({
-            inputStream: {
-                name: "Live",
-                type: "LiveStream",
-                target: document.querySelector('#video')    // Камера на странице
-            },
-            decoder: {
-                readers: ["code_128_reader", "ean_reader", "ean_8_reader", "code_39_reader"]
-            }
-        }, function(err) {
-            if (err) {
-                console.error(err);
-                return;
-            }
-            Quagga.start();
+        const scanButton = document.getElementById('scan-button');
+
+        scanButton.addEventListener('click', () => {
+            Quagga.init({
+                inputStream: {
+                    name: "Live",
+                    type: "LiveStream",
+                    target: document.querySelector('#video')
+                },
+                decoder: {
+                    readers: ["code_128_reader", "ean_reader", "ean_8_reader", "code_39_reader"]
+                }
+            }, function(err) {
+                if (err) {
+                    console.error(err);
+                    return;
+                }
+                Quagga.start();
+            });
         });
 
         Quagga.onDetected(function(result) {
